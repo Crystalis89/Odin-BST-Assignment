@@ -3,32 +3,24 @@
 // If you would like to visualize your binary search tree, here is a prettyPrint() function that will console.log your tree in a structured format. This function will expect to receive the root of your tree as the value for the node parameter.
 
 const prettyPrint = (node, prefix = "", isLeft = true) => {
+  // console.log(node)
     if (node === null) {
       return;
     }
     if (node.right !== null) {
       prettyPrint(node.right, `${prefix}${isLeft ? "│   " : "    "}`, false);
     }
-    console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.data}`);
+    console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.root}`);
     if (node.left !== null) {
       prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
     }
   };
 
 
-// Build a Tree class/factory which accepts an array when initialized. The Tree class should have a root attribute, which uses the return value of buildTree which you’ll write next.
-
-class Tree {
-  root = null;
-
-  constructor(parameters) {
-    
-  }
-
-
+  
   // Write a buildTree(array) function that takes an array of data (e.g., [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]) and turns it into a balanced binary tree full of Node objects appropriately placed (don’t forget to sort and remove duplicates!). The buildTree function should return the level-0 root node.
-
-  buildTree(array) {
+  // function buildTree(array, start, end, firstLoop) {
+    function buildTree(array, start = 0, end = array.length - 1, firstLoop) {
 
     if (start > end)
       {
@@ -36,15 +28,47 @@ class Tree {
       }
 
       //check array for duplicates
+      let nodupes = [array[0]]
 
+      for (const entry of array) {
+        let dupestatus
+        
+
+        for (const dupcheck of nodupes) {
+          if (entry === dupcheck) {
+            dupestatus = true
+            break
+          }          
+        }
+
+        if (dupestatus !== true) {
+          nodupes.push(entry)
+        }
+      }
 
       //sort array lowest to highest
-      array.sort((a, b) => a - b);  
+      array = nodupes.sort((a, b) => a - b);  
+      if (firstLoop === true) {
+        console.log(array)
 
+        end = array.length - 1
+      }
 //  Get the middle element and make it root
+    let mid = parseInt((start + end) / 2);
+//Make the initial root node if there is none yet
 
+     let node = new Node(array[mid]);
+    node.left = buildTree(array, start, mid - 1);
+    node.right = buildTree(array, mid + 1, end);
+    return node;
 
+  }
 
+// Build a Tree class/factory which accepts an array when initialized. The Tree class should have a root attribute, which uses the return value of buildTree which you’ll write next.
+
+class Tree {
+  constructor(rootdata) {
+    this.root = null
   }
 
 
@@ -136,15 +160,22 @@ class Node extends Tree {
    // Note: In derived classes, super() must be called before you
     // can use 'this'. Leaving this out will cause a reference error.
   
-  constructor(parameters) {
-    this.data = d;
+  constructor(data) {
+    super(data)
+    this.root = data;
     this.left = null;
     this.right = null;
   }
 }
 
 
+//Testing
 
+let testarray = [1, 7, 4, 23, 8, 9, 4, 6, 5, 7, 9, 67, 6345, 324]
+
+let bstTree = buildTree(testarray, 0 , (testarray.length - 1), true)
+
+prettyPrint(bstTree)
 
 
 
