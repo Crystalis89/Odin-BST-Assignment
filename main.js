@@ -3,74 +3,96 @@
 // If you would like to visualize your binary search tree, here is a prettyPrint() function that will console.log your tree in a structured format. This function will expect to receive the root of your tree as the value for the node parameter.
 
 const prettyPrint = (node, prefix = "", isLeft = true) => {
-  // console.log(node)
     if (node === null) {
       return;
     }
     if (node.right !== null) {
       prettyPrint(node.right, `${prefix}${isLeft ? "│   " : "    "}`, false);
     }
-    console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.root}`);
+    console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.value}`);
     if (node.left !== null) {
       prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
     }
   };
 
-
+  function arrayprep(array) {
+    let nodupes = [array[0]]
   
-  // Write a buildTree(array) function that takes an array of data (e.g., [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]) and turns it into a balanced binary tree full of Node objects appropriately placed (don’t forget to sort and remove duplicates!). The buildTree function should return the level-0 root node.
-  // function buildTree(array, start, end, firstLoop) {
-    function buildTree(array, start = 0, end = array.length - 1, firstLoop) {
-
-    if (start > end)
-      {
-          return null;
-      }
-
-      //check array for duplicates
-      let nodupes = [array[0]]
-
-      for (const entry of array) {
-        let dupestatus
-        
-
-        for (const dupcheck of nodupes) {
-          if (entry === dupcheck) {
-            dupestatus = true
-            break
-          }          
-        }
-
-        if (dupestatus !== true) {
-          nodupes.push(entry)
-        }
-      }
-
-      //sort array lowest to highest
-      array = nodupes.sort((a, b) => a - b);  
-      if (firstLoop === true) {
-        console.log(array)
-
-        end = array.length - 1
-      }
-//  Get the middle element and make it root
-    let mid = parseInt((start + end) / 2);
-//Make the initial root node if there is none yet
-
-     let node = new Node(array[mid]);
-    node.left = buildTree(array, start, mid - 1);
-    node.right = buildTree(array, mid + 1, end);
-    return node;
-
+  for (const entry of array) {
+    let dupestatus
+    
+  
+    for (const dupcheck of nodupes) {
+      if (entry === dupcheck) {
+        dupestatus = true
+        break
+      }          
+    }
+  
+    if (dupestatus !== true) {
+      nodupes.push(entry)
+    }
   }
+  array = nodupes.sort((a, b) => a - b);  
+  return array
+  }
+  
 
 // Build a Tree class/factory which accepts an array when initialized. The Tree class should have a root attribute, which uses the return value of buildTree which you’ll write next.
 
 class Tree {
   constructor(rootdata) {
-    this.root = null
+    this.root = this.buildTree(rootdata)
   }
 
+  
+  // Write a buildTree(array) function that takes an array of data (e.g., [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]) and turns it into a balanced binary tree full of Node objects appropriately placed (don’t forget to sort and remove duplicates!). The buildTree function should return the level-0 root node.
+
+buildTree(array) {
+  if (array.length === 0 || Array.isArray(array) === false) {
+    return null;
+  } 
+  let start = 0
+  let mid
+  let prepped
+  let end 
+
+  if (array.length === 1) {
+    mid = 0
+    prepped = array
+
+  } else {
+    prepped = arrayprep(array)
+    end= prepped.length - 1
+    mid = Math.floor((start + end) / 2)
+  }
+
+
+    let node
+    if (prepped.length <= 1) {
+      mid = 0
+    } else {
+      mid = Math.floor((start + end) / 2)
+    }
+    
+
+  if (start > end || prepped[start] === undefined)
+      {
+          return null;
+      }
+      
+      node = new Node(prepped[mid]); 
+      let leftArray = prepped.slice(0, mid);
+      let rightArray = prepped.slice(mid + 1);
+   
+        node.left = this.buildTree(leftArray);
+    
+        node.right = this.buildTree(rightArray);
+  
+  return node;
+  
+  }
+  
 
   // Write insert(value)  and deleteItem(value) functions that insert/delete the given value. You’ll have to deal with several cases for delete, such as when a node has children or not. If you need additional resources, check out these two articles on inserting and deleting, or this video on BST inserting/removing with several visual examples. You may be tempted to implement these methods using the original input array used to build the tree, but it’s important for the efficiency of these operations that you don’t do this. 
   insert(value) {
@@ -86,8 +108,30 @@ class Tree {
   }
 
   // Write a find(value) function that returns the node with the given value.
-  find(value) {
+  find(value, currentnode = this.root, i = 0) {
+    i++
 
+    if (currentnode.value === value) {
+      console.log('Found after ' + i + ' iterations')
+      console.log(currentnode)
+      return currentnode
+    }
+
+    if (i >= 1000 || currentnode.left === null && currentnode.right === null) {
+      return null
+    
+    }
+
+     if (currentnode.value > value) {
+
+    return  this.find(value, currentnode.left, i)
+    }
+
+    if (currentnode.value < value) {
+
+
+    return  this.find(value, currentnode.right, i)
+    }
 
     
   }
@@ -157,12 +201,10 @@ class Tree {
     // Build a Node class/factory. It should have an attribute for the data it stores as well as its left and right children.
 
 class Node extends Tree {
-   // Note: In derived classes, super() must be called before you
-    // can use 'this'. Leaving this out will cause a reference error.
-  
+    
   constructor(data) {
     super(data)
-    this.root = data;
+    this.value = data;
     this.left = null;
     this.right = null;
   }
@@ -171,24 +213,11 @@ class Node extends Tree {
 
 //Testing
 
-let testarray = [1, 7, 4, 23, 8, 9, 4, 6, 5, 7, 9, 67, 6345, 324]
+let testarray = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]
+// let testarray = [1,3,4,5,7,8,9,23,67,324,6345]
+// let testarray = [1, 2, 3,4,5,6,7,8,9, 10,11,12,13,14,15,16,17,18,19,20, 23, 67, 6345, 324]
+// let testarray = [1,2,3,4,5,6,7]
 
-let bstTree = buildTree(testarray, 0 , (testarray.length - 1), true)
+let bstTree = new Tree(testarray)
 
-prettyPrint(bstTree)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+prettyPrint(bstTree.root)
