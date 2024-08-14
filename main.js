@@ -48,7 +48,7 @@ class Tree {
   
   // Write a buildTree(array) function that takes an array of data (e.g., [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]) and turns it into a balanced binary tree full of Node objects appropriately placed (don’t forget to sort and remove duplicates!). The buildTree function should return the level-0 root node.
 
-buildTree(array) {
+buildTree(array, depth = 0) {
   if (array.length === 0 || Array.isArray(array) === false) {
     return null;
   } 
@@ -81,13 +81,13 @@ buildTree(array) {
           return null;
       }
       
-      node = new Node(prepped[mid]); 
+      node = new Node(prepped[mid], depth); 
       let leftArray = prepped.slice(0, mid);
       let rightArray = prepped.slice(mid + 1);
    
-        node.left = this.buildTree(leftArray);
+        node.left = this.buildTree(leftArray, depth+1);
     
-        node.right = this.buildTree(rightArray);
+        node.right = this.buildTree(rightArray, depth + 1);
   
   return node;
   
@@ -112,8 +112,7 @@ buildTree(array) {
     i++
 
     if (currentnode.value === value) {
-      console.log('Found after ' + i + ' iterations')
-      console.log(currentnode)
+
       return currentnode
     }
 
@@ -123,13 +122,13 @@ buildTree(array) {
     }
 
      if (currentnode.value > value) {
-
+      console.log('Left: ' + i)
     return  this.find(value, currentnode.left, i)
     }
 
     if (currentnode.value < value) {
 
-
+      console.log('Right: ' + i)
     return  this.find(value, currentnode.right, i)
     }
 
@@ -170,21 +169,94 @@ buildTree(array) {
   //     Write a height(node) function that returns the given node’s height. Height is defined as the number of edges in the longest path from a given node to a leaf node.
 
   height(node) {
+  
+    if (node == null)
+      return 0;
+    else {
 
 
+    if (node.root !== null) {
+      node = node.root
+    }
+      let leftDepth = this.height(node.left);
+      let rightDepth = this.height(node.right);
+
+      if (leftDepth > rightDepth)
+          return (leftDepth + 1);
+       else
+          return (rightDepth + 1);
+    }
     
   } 
 
-  // Write a depth(node) function that returns the given node’s depth. Depth is defined as the number of edges in the path from a given node to the tree’s root node.
-  depth(node) {
+
+//   // Write a depth(node) function that returns the given node’s depth. Depth is defined as the number of edges in the path from a given node to the tree’s root node.
 
 
-    
+  depth(node, target = node, isFirstCall = true) {
+    console.log(node)
+    //height node is starting point, for depth node is ending point
+    if (isFirstCall === true) {
+
+        if (node === null || node.root === null ) {
+            node = this.root;
+        }
+        
+        isFirstCall = false;
+       }
+         
+      if (node === null ) {
+      return null
+      }
+    else {
+      if (node === target) {     
+        return node.depth;
+        } 
+      let leftDepth = this.depth(node.left, target, isFirstCall);
+      let rightDepth = this.depth(node.right, target, isFirstCall);
+     
+
+
+      
+        if (leftDepth > rightDepth)
+          return (leftDepth );
+       else
+          return (rightDepth);  
   }
 
-  // Write an isBalanced function that checks if the tree is balanced. A balanced tree is one where the difference between heights of the left subtree and the right subtree of every node is not more than 1.
-  isBalanced() {
+}
 
+    
+  
+
+  // Write an isBalanced function that checks if the tree is balanced. A balanced tree is one where the difference between heights of the left subtree and the right subtree of every node is not more than 1.
+  isBalanced(node) {
+
+    console.log(node)
+    // if (node === undefined) {
+    //   // node = this
+    
+    // console.log('test')
+    // }
+
+
+
+    if (node == null)
+      return null;
+    else {
+
+    
+    // if (node.root !== null) {
+    //   node = node.root
+    // }
+      let leftDepth = this.isBalanced(node.left);
+      let rightDepth = this.isBalanced(node.right);
+
+      if (leftDepth <= rightDepth + 1)
+          return true;
+       else 
+          return false;
+  }
 
     
   }
@@ -202,11 +274,12 @@ buildTree(array) {
 
 class Node extends Tree {
     
-  constructor(data) {
+  constructor(data, depth) {
     super(data)
     this.value = data;
     this.left = null;
     this.right = null;
+    this.depth = depth
   }
 }
 
